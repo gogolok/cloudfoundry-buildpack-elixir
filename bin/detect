@@ -4,8 +4,10 @@ set -e
 
 mix_file_url="$1/mix.exs"
 
-
-if test -f $mix_file_url
-then echo "Elixir"
-else echo no; exit 1
+if [ -f $mix_file_url ];
+then
+  echo "Elixir"
+  exit 0
+else
+  exit 1
 fi
