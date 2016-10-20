@@ -66,11 +66,11 @@ function clean_elixir_downloads() {
 
 function restore_mix() {
   if [ -d $(mix_backup_path) ]; then
-    cp -R $(mix_backup_path) ${HOME}/.mix
+    cp -pR $(mix_backup_path) ${HOME}/.mix
   fi
 
   if [ -d $(hex_backup_path) ]; then
-    cp -R $(hex_backup_path) ${HOME}/.hex
+    cp -pR $(hex_backup_path) ${HOME}/.hex
   fi
 }
 
@@ -78,31 +78,20 @@ function backup_mix() {
   # Delete the previous backups
   rm -rf $(mix_backup_path) $(hex_backup_path)
 
-  cp -R ${HOME}/.mix $(mix_backup_path)
-  cp -R ${HOME}/.hex $(hex_backup_path)
+  cp -pR ${HOME}/.mix $(mix_backup_path)
+  cp -pR ${HOME}/.hex $(hex_backup_path)
 }
 
 function install_hex() {
   output_section "Installing Hex"
-  if [ -z ${hex_source} ]; then
-    mix local.hex --force
-  else
-    mix archive.install ${hex_source} --force
-  fi
+  mix local.hex --force
 }
 
 function install_rebar() {
   output_section "Installing rebar"
 
-  # The --force flag was added in Elixir 0.15.2
-  # Remove the 'if' when most users have migrated
-  # away from 0.15.1 and earlier version
-
-  if [ ! -f ${HOME}/.mix/rebar ]; then
-    mix local.rebar --force
-  fi
+  mix local.rebar --force
 }
-
 
 function elixir_changed() {
   if [ $elixir_changed = true ]; then

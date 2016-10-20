@@ -1,20 +1,3 @@
-# Runs stuff in a wrapper. If exit code is not zero, it exits
-#
-# Usage:
-#     function greet() {
-#       echo "Hello $1"
-#     }
-#     try_run "greet Akash"
-function try_run() {
-  (eval $1)
-  local cmd_result=$?
-  if [[ $cmd_result != 0 ]] ; then
-      echo "Exiting"
-      exit $cmd_result
-  fi
-}
-
-
 # Outputs log line
 #
 # Usage:
@@ -38,19 +21,6 @@ function output_section() {
 }
 
 
-# Download archive of branch, tag or commit of a project from Github
-#
-# Usage:
-#
-#     github_download "elixir-lang" "elixir" "master"
-#
-function github_download() {
-  # We don't use the -J option because curl on Heroku is really old.
-  # So we pass a filename ourselves.
-  curl -k -s -L "https://github.com/$1/$2/archive/$3.tar.gz" -o "${cache_path}/$2-$3.tar.gz" || exit 1
-}
-
-
 function load_config() {
   output_section "Checking Erlang and Elixir versions"
 
@@ -70,14 +40,28 @@ function load_config() {
   output_line "Will use the following versions:"
   output_line "* Erlang ${erlang_version}"
   output_line "* Elixir ${elixir_version[0]} ${elixir_version[1]}"
+  output_line "Will export the following config vars:"
+  output_line "* Config vars ${config_vars_to_export[*]}"
 }
 
 
+# Make the config vars from config_vars_to_export available at slug compile time.
+# Useful for compiled languages like Erlang and Elixir
+function export_config_vars() {
+  for config_var in ${config_vars_to_export[@]}; do
+    if [ -d $env_path ] && [ -f $env_path/${config_var} ]; then
+      export ${config_var}="$(cat $env_path/${config_var})"
+    fi
+  done
+}
+
 function export_mix_env() {
-  if [ -d $env_path ] && [ -f $env_path/MIX_ENV ]; then
-    export MIX_ENV=$(cat $env_path/MIX_ENV)
-  else
-    export MIX_ENV=prod
+  if [ -z "$MIX_ENV" ]; then
+    if [ -d $env_path ] && [ -f $env_path/MIX_ENV ]; then
+      export MIX_ENV=$(cat $env_path/MIX_ENV)
+    else
+      export MIX_ENV=prod
+    fi
   fi
 
   output_line "* MIX_ENV=${MIX_ENV}"
