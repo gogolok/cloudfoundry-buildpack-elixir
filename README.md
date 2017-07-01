@@ -1,5 +1,3 @@
 # Cloud Foundry Buildpack for Elixir
 
-Based on the Heroku buildpack for Elixir by Akash Manohar.
-
-[Documentation](http://gogolok.github.io/cloudfoundry-buildpack-elixir-website/)
+DEPRECATED, please use [https://github.com/HashNuke/heroku-buildpack-elixir](https://github.com/HashNuke/heroku-buildpack-elixir)
